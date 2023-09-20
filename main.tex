@@ -1,0 +1,809 @@
+\documentclass{report}
+\usepackage[utf8]{inputenc}
+\usepackage[french]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{minted}
+\usepackage{diagbox}
+\usepackage{hyphenat}
+\usepackage{parskip}
+\usepackage{amsmath}
+\usepackage{tabularx}
+\usepackage{amsfonts}
+\usepackage{graphicx}
+\newtheorem{theorem}{Théorème}
+\hyphenation{mathéma-tiques récu-pérer sta-tis-ti-que}
+\graphicspath{{Images/}}
+
+\title{Statistique I pour psychologues 2022-2023 Partie A}
+\author{Arthur Fontes Coêlho Cicic}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Ce document est un résumé du cours de statistique I pour psychologues présenté par le Professeur J.-Ph. Antonietti de 2022-2023. Il y à mes notes, des exemples venant du cours et des séries avec une marche à suivre pour chaque exemple et des explications détaillées des fonctions utilisées sur R et mes propres fonctions. Chaque élément est introduit dans un ordre et n'est pas reexpliqué a chaque fois. J'ai essayé de rendre les explication plus abordables en m'éloignant parfois d'un langage mathématique et technique.
+
+----------------------- 
+
+Hello c'est pas encore fini il y a peut-être des fautes et parfois certaines explications sont pas terminées mais il y a déjà pas mal de trucs bien donc voila si vous êtes confus ou que vous trouvez des erreurs dites moi pour que je vous explique et que je corrige 
+
+bonnes révisions 
+
+----------------------------------
+
+\end{abstract}
+
+\tableofcontents
+
+\chapter{Statistique Descriptive}
+Faire des statistiques c'est récolter, analyser et interpréter des données, l'apprentissage de la statistique est important pour la production de toute recherche scientifique et leur de compréhension. 
+
+La statistique peut se partager en deux catégories. La statistique descriptive et la statistique inférentielle. La statistique descriptive est le sujet du premier chapitre. Son but est comme son nom l'indique de décrire nos données notamment grâce à des valeurs telles que les mesures de tendances centrales, les mesures de variabilités et bien d'autres, ces valeurs sont parfois abstraites il est donc utile de résumer les informations obtenues avec des graphiques qui permettent de visualiser simplement nos données. Tout ça fait partie de la statistique descriptive. Le deuxième chapitre introduira quelques notions en probabilité qui seront utiles à l'apprentissage de la statistique inférentielle qui est abordée dans le troisième chapitre.
+
+\section{Géneralités}
+
+\begin{itemize}
+\item \textbf{Population} : "Les ensembles étudiés par la statistique portent le nom de population ou d’univers statistique."
+\item \textbf{Individus} :  "Les éléments de ces ensembles sont les unités statistiques ou individus."
+\item \textbf{Recensement} : "L’étude de tous les individus d’une population finie s’appelle un recensement." 
+\item \textbf{Sondage} : "Lorsqu’on observe une partie de la population seulement, on parle de sondage."
+\item \textbf{Échantillon} :  "Lors d’un sondage, le sous-ensemble étudié s’appelle échantillon (\(E\in\Omega\))." 
+\item \textbf{Variables} : "Chaque individu d’une population est décrit par un ensemble de caractéristiques appelées variables ou caractères." 
+\end{itemize}
+
+\subsection{Les variables}
+
+En statistique on analyse plusieurs types de variables elles sont classées en deux groupes en fonction de leurs modalités (la forme qu'elles prennent), quantitatives et qualitatives. Les variables quantitatives sont de forme numérique et les variables qualitatives sont souvent liés à un sens comme la vue, l'ouïe, le toucher, etc... elles ne sont pas quantifiables.
+
+\begin{itemize}
+\item \textbf{Les variables quantitatives discrètes} sont des valeurs entières, pour les identifier en général les modalités sont issues d’un \textit{comptage} comme par exemple le nombre de chats dans ton appartement (0 , 1 , 2), tu ne peux pas avoir 1,5 chats.
+\item \textbf{Les variables quantitatives continues} sont toutes les valeurs d’un domaine donné, pour les identifier en général les modalités sont des \textit{mesures} comme par exemple la taille des étudiant·e·s en mètre (1.6 , 2 , 1.78), les étudiant·e·s de l'UNIL ont une taille comprise entre 1 et 2.5 mètres, toutes les valeurs intermédiaires sont possibles.
+\item \textbf{Les variables qualitatives nominales} sont comme le nom l’indique juste des noms, les modalités sont des catégories sans ordre particulier comme par exemple la couleur de cheveux des étudiant·e·s de l’UNIL :  (Bruns ; Blonds  ; Bleus  ; … ) les couleurs n’ont pas de hiérarchie.
+\item \textbf{Les variables qualitatives ordinales} ressemblent aux précédentes elles représentent des catégories mais ici les modalités possèdent un ordre. Ce sont des catégories qui sont classées comme par exemple les réponses à la question "Peux-tu te passer de ton téléphone pendant un jour ?" : (Tout à fait d'accord ; D'accord ; Ni en désaccord ni d’accord ; Pas d'accord ; Pas du tout d'accord).
+\end{itemize}
+
+Toutefois, dans certaines situations, bien que certaines variables rentrent dans une catégorie elles peuvent être considérés comme une autre pour des questions pratiques qui seront expliquées en temps voulu.
+
+\subsection{Introduction des données}
+
+ Pour analyser des données on doit d'abord les introduire dans RStudio, il y a plusieurs manières de faire en fonction de comment elles sont disponibles.
+
+\textbf{Exemple 1.} Les donnés sont sous forme brute. 
+
+\begin{center}
+        \begin{tabular}{ c c c c }
+            1 2 3 4 3\\
+            5 4 3 5 6\\
+            3 7 8 6 5\\
+            3 7 4 5 6\\
+        \end{tabular}
+    \end{center}
+
+Supposons ici que nous avons les scores issu d'un test, dans ce cas il suffit d'introduire les valeurs à la main dans un vecteur en utilisant la fonction \textbf{c()}. Cette fonction crée un vecteur, on peut voir ce vecteur comme une liste ou un tiroir qui stock nos données. Formellement un vecteur peut être vu comme un type de matrice qui est un tableau de nombre rangée en ligne et en colonnes. Les données dans le vecteur doivent être séparées par des virgules et peuvent être soit du texte, numériques ou des valeurs booléennes (TRUE / FALSE). Sur R sauf cas particulier comme par exemple les valeurs booléennes les données textuelles doivent être écrites entre guillemets et il est important de noter que la séparation décimale pour les données numériques se fait par un point.
+
+Pour saisir ces données dans RStudio ça donnerait ça :
+
+\begin{minted}{R}
+#Saisie des données avec c()
+x <- c(1,2,3,4,3,5,4,3,5,6,3,7,8,6,5,3,7,4,5,6)
+\end{minted}
+
+\textbf{Remarque}, toutes les fonctions peuvent être run sans être nommées, ce qui veut dire que dans l'exemple au dessus le " x <- " n'est pas nécessaire mais elle ne seront pas stockées dans la mémoire, si on veut réutiliser une ligne de code, une fonction ou un vecteur contenant des données, nommer ses objets est indispensable. R va voir le nom de l'objet et ira en quelques sorte chercher le bon tiroir contenant la bonne info.
+
+\textbf{Exemple 2.} Les données sont sous forme de tableau de données regroupées.
+
+\begin{center}
+        \begin{tabular}{ c c c c c c c c}
+            $x_i$ 1 2 3 4 5 6 7 8 \\
+            $n_i$ 1 1 5 3 4 3 2 1 \\
+        \end{tabular}
+    \end{center}
+
+Supposons qu'à la place des données brutes les scores soient dans un tableau de de données regroupées. Le but est de redonner à R les données brutes pour qu'on puisse les analyser. Dans ce cas une manière simple de rentrer toutes ces donnés dans R et de créer deux vecteurs, un contenant les modalités $x_i$ et un deuxième contenant le nombre d'observations pour chaque modalités $n_i$. A partir de ces deux vecteurs on peut utiliser la fonction \textbf{rep()}, cette fonction crée un vecteur en utilisant deux arguments. Le premier est une donnée à répéter et le deuxième est le nombre de fois que la donnée doit être répétée. Pour créer un vecteur contenant les données brutes il suffit donc d'utiliser rep() avec pour arguments $x_i$ et $n_i$. Pour simplifier encore plus la tâche un vecteur contenant une séquence de chiffres ou nombres peut être fait facilement avec la fonction \textbf{seq()} qui prend trois arguments, les deux premiers sont les bornes celle de départ et d'arrivée et le troisième est par défaut définit à 1 et représente le saut entre chaque valeur de la séquence à partir de la première borne.
+
+Pour saisir ces données dans RStudio ça donnerait ça :
+
+\begin{minted}{R}
+# Pour des données à partir d'un tableau de données regroupées 
+
+xi_1 <- c(1,2,3,4,5,6,7,8)
+#En utilisant seq()
+xi_2 <- seq(1,8)
+# Altérnaitve si le saut est de 1
+xi_3 <- 1:8
+
+ni <- c(1,1,5,3,4,3,2,1)
+x <- rep(xi_1,ni) # xi_1,2 ou 3 fonctionne
+\end{minted}
+
+\textbf{Exemple 3.} Les données sont dans un fichier csv. 
+
+Généralement les données qu'on analyse sont plus nombreuses qu'une vingtaine d'observations et sont stockées notamment dans des fichiers de type .csv (abréviation pour comma-separated values), ces fichiers sont facilement importés dans différents programmes dont RStudio. Pour le processus d'importation je conseil de lire "DémaRRage\_v01.pdf" disponible sur le moodle de statistique qui explique très bien la démarche.
+
+Une fois que les données ont été importés dans RStudio on a besoin d'y accéder, on doit crée un objet qui vas contenir les contenir. Pour ça il faut utiliser la fonction \textbf{read.csv()} qui permet de lire et modifier les informations contenues dans ce type de fichier.
+
+Cette fonction peut prendre plusieurs arguments mais celui qui nous intéresse est \textit{file} qui permet de définir le fichier à lire. Si le fichier se trouve dans un projet R (il est visible a coté de tes autres fichiers en bas à droite) il suffit simplement de donner le nom complet du fichier. Si il se trouve dans un dossier nommé "données" par exemple qui est présent dans ton projet R, il faut donner le chemin d'accès pour que RStudio puisse le retrouver.
+
+Une fois que cela est fait on peut créer un vecteur contant les valeurs voulues en spécifiant le nom de l'objet où les données sont stockées suivi de l'opérateur \$ (qui formellement sert à accéder au contenu d'un data.frame) et le nom de la colonne voulue. Supposons que dans notre exemple la colonne s'appelle V1 pour Valeurs 1.
+
+Pour saisir des données issues d'un fichier .csv dans RStudio ça donnerait ça :
+
+\begin{minted}{R}
+# Après avoir importé les données dasn RStudio
+
+# Lire les données depuis un fichier .csv
+DATA <- read.csv(file = "NomDuFichier.csv")
+x <- DATA$V1
+#---
+# Si le fichier est present dasn un dossier de votre projet R
+DATA <- read.csv(file = "NomDuDossier\NomDuFichier.csv")
+x <- DATA$V1
+\end{minted}
+
+\newpage
+
+\subsection{La fréquence}
+
+La première chose qu'on peut faire pour analyser nos données c'est calculer la fréquences des modalités. La fréquence d'une modalité peut être aussi vue comme la proportion d'une certaine observation, elle est définie par $f_i = n_i/n$ où $f_i$ la fréquence de la i ème modalité, $n_i$ le nombre d'occurrence de la i ème modalité et $n$ le nombre total d'observations. Les fréquences sont rapidement calculées sur RStudio. La première chose à faire est un tableau de données regroupées en utilisant la fonction \textbf{table()} qui prend comme argument un vecteur contenant des données brutes. Ces tableaux de données regroupées seront utilisées comme arguments dans d'autres d'autres fonctions dont \textbf{proportions()} qui sert à calculer la fréquence $f$ de chaque modalité. 
+
+\begin{theorem}
+Soit $f_i$ la fréquence de la i ème observation, $n_i$ le nombre d'occurrences de la i ème observation et $n$ la somme de toutes les observations. La somme des fréquences est égale à 1.
+
+\begin{align*}
+  \sum_{i} f_i &= \frac{n_i}{n} \\
+ &=  \frac{1}{n}  \sum_{i} n_i \\
+ &= \frac{1}{n} \cdot n \\
+ &= 1
+\end{align*}
+\end{theorem}
+
+Sur RStudio la création des tableaux de données regroupées et le calcul des fréquences se fait comme suit.
+
+\begin{minted}{R}
+# Pour calculer les fréquences et les représenter dans un tableau
+x <- c(1,2,3,4,3,5,4,3,5,6,3,7,8,6,5,3,7,4,5,6)
+TAB <- table(x)
+TAB
+f <- proportions(TAB)
+f
+# Pour représenter les fréquences en % dans un tableau
+f100 <- f*100
+f100
+\end{minted}
+
+\section{Représentation graphique d’une variable statistique}
+
+Dans cette section on va voir comment représenter nos données graphiquement et pourquoi certains types de graphiques sont meilleurs que d'autres en fonction du de la variable étudiée.
+
+\subsection{Variable numérique discrète}
+
+Pour représenter graphiquement une variable numérique discrète on va faire un graphique en bâton, l'axe des abscisses (X) représente les modalités et l'axe des ordonnées (Y) représente l'effectif ou la fréquence des modalités. Pour faire ce graphique nous allons utiliser la fonction \textbf{plot()}. Cette fonction est très versatile et prend plusieurs arguments qui servent à définir les données et le style du graphique comme par exemple le nom des axes avec \textit{xlab} et \textit{ylab}, un titre \textit{main} etc. Il y a beaucoup de moyens de modifier le graphique pour connaître toutes les possibilités je conseil de lire la documentation R mais on peut aussi rester dans le simple en donnant juste nos données (sous forme de tableau de données regroupées) à \textbf{plot()} et ça marche aussi.
+
+Pour faire des graphiques en bâton sur RStudio ça donnerait ça :
+
+\begin{minted}{R}
+x <- c(1,2,3,4,3,5,4,3,5,6,3,7,8,6,5,3,7,4,5,6)
+
+# L'axe y en effectif
+TAB <- table(x)
+plot(TAB,
+     xlab = "Modalités",
+     ylab = "Effectif",
+     main = "Diagramme en bâtons")
+
+# L'axe y en fréquences 
+f <- proportions(TAB)
+plot(f,
+     xlab = "Modalités",
+     ylab = "Fréquence",
+     main = "Diagramme en bâtons")
+\end{minted}
+
+\subsection{Variable numérique continue}
+
+Pour représenter graphiquement une variable numérique continue on va faire un histogramme de Sturges ou un diagramme en feuille. Le diagramme en bâton n'est pas adapté parce qu'un bâton aurait été fait pour chaque modalité et aucune information n'aurait été bien visible. L'avantage de l'histogramme de Struges c'est de faire des classes dans lesquelles les données sont réparties.
+
+La construction d'un histogramme de Sturges se fait de la manière suivante :
+
+\begin{enumerate}
+  \item Ordonner les données dans l'ordre croissant.
+  \item Déterminer l'étendue (ou l'empan) de la variable $X$.
+  
+   L'étendue c'est l'espace que nos variables vont prendre sur l'axe des abscisses. On a besoin de cette étendue parce qu'on veut la partager en parties égales pour former des classes.
+  \begin{align*}
+  Etendue(X) = max(X) - min(X)
+  \end{align*} 
+  \quad
+  \item Faire la première estimation du nombre de classes $K$.
+  
+  Les classes sont des ensembles qui vont contenir nos observations.
+
+  \begin{align*}
+  K = [1+log_2(n)]
+  \end{align*} 
+
+Pour rappel : 
+
+  \begin{align*}
+  log_2(n) = \frac{log_{10}(n)}{log_2} = \frac{ln(n)}{ln(2)} 
+  \end{align*} 
+  
+  \item Estimation de la largeur d'une classe $l$.
+
+  En connaissant l'estimation du nombre de classe et l'étendue on peut maintenant estimer la largeur d'une classe.
+  
+  \begin{align*}
+  l = \frac{Etendue(X)}{K}
+  \end{align*}
+
+  \item Choisir une largeur de classe commode $L$.
+  
+  On veut prendre des valeurs commodes en d'autres mots des valeurs pratiques regroupées dans cette suite :
+
+  \begin{center}
+        ...,0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100, 200,...
+  \end{center}
+  \quad
+
+  En suivant la règle suivante : \\
+  
+  \begin{itemize}
+  \item $1\cdot10^k<l\leq2\cdot10^k\Rightarrow L = 2\cdot10^k \qquad k\in\mathbb{Z} $
+  \item $2\cdot10^k<l\leq5\cdot10^k\Rightarrow L = 5\cdot10^k$
+  \item $5\cdot10^k<l\leq10\cdot10^k\Rightarrow L = 10\cdot10^k$
+\end{itemize}
+\quad\\
+Pour résumer regarder entre quelles valeurs de la liste se trouve notre $l$ et définir $L$ comme la plus grande des deux valeurs.
+
+  \item Choisir les bornes de la première classe $e_0$ et $e_1$.
+  
+  Il faut définir les premières bornes tel que : \\
+  
+  \begin{itemize}
+  \item $e_0\leq min(X) < e_1$ 
+  \item $[e_0 = p \cdot L]\wedge[e_1 = (p+1)\cdot L] \qquad p\in\mathbb{N}$
+\end{itemize}
+\quad\\
+Pour résumer, la première relation dit que que la première borne doit être plus petite ou égale à la valeur minimale de la variable $X$ et que la valeur minimale de $X$ se trouve dans la première classe. La deuxième relation dit que $e_0$ doit être un multiple (entier) de $L$ et que $e_1$ se trouve à une distance $L$ de $e_0$. On voit aussi que les bornes du premier ensemble sont ouvertes à gauche et fermées à droite. Par conséquent toutes les autres classes sont construites de la même manière sauf la dernière qui est fermée à droite et à gauche parce qu'elle doit inclure les valeurs maximales.
+  
+  \item Calculer la fréquence $f_i$, la densité $d_i$, et l'amplitude $a_i$ de chaque classe. 
+  
+  La fréquence ici représente la proportion d'observation dans une classe, de plus la manière dont l'histogramme est construit fait que la fréquence $f_i$ représente aussi l'air du i ème rectangle de l'histogramme par conséquent la somme de l'aire des rectangles de l'histogramme vaut 1 car $\sum_{i} f_i = 1$.
+  
+  La densité représente la hauteur d'un rectangle de l'histogramme, dans l'histogramme de Sturges la classe avec la plus grande densité est aussi celle ayant le plus d'observations, c'est la plus peuplée donc la plus dense. la densité se calcule de la manière suivante $d_i = f_i/a_i$.
+  
+  L'amplitude représente la largeur d'un rectangle de l'histogramme. Dans un histogramme de Sturges toutes les amplitudes $a_j$ sont les mêmes et sont égales à $L$.
+\end{enumerate}
+
+Sur R pour faire un histogramme il faut utiliser la fonction \textbf{hist()} qui prend plusieurs arguments pour définir les données et le style du graphique, les plus importantes pour nous sont :
+
+\begin{itemize}
+\item \textit{breaks} qui sert à définir les bornes de chaque classe, pour le faire simplement on utilise \textbf{seq()}.
+\item \textit{right} qui est définit comme TRUE ou FALSE, si \textit{right=TRUE} les bornes de chaque classe seront ouvertes à gauche et fermées a droite $]...]$. Si \textit{right = FALSE} les bornes seront ouvertes à droite et fermées à gauche $[...[$ .
+\item \textit{include.lowest} qui est définit comme TRUE ou FALSE, cet argument fonctionne de paire avec la précédente, elle ferme le premier ensemble si \textit{right=TRUE} donc elle inclut la plus petite valeur et ferme le dernier ensemble si \textit{right=FALSE} elle donc inclut la plus grande valeur puisque toutes les bornes sont déjà fermées à droite.
+\item \textit{probability} doit être TRUE.
+\end{itemize}
+Pour résumer les choix de \textit{right} et \textit{include.lowest} :
+
+\quad
+\begin{center}
+\begin{tabular}{|l|*{2}{c|}}\hline
+\backslashbox{right}{include.lowest}
+&\makebox[3em]{TRUE}&\makebox[3em]{FALSE}\\\hline
+TRUE &$[...] \:-\: ]...] \:-\: ]...]$&$]...] \:-\: ]...] \:-\: ]...]$\\\hline
+FALSE &$[...[ \:-\: [...[ \:-\: [...]$&$[...[ \:-\: [...[ \:-\: [...[$\\\hline
+
+\end{tabular}
+\end{center}
+\quad
+
+Pour mieux comprendre tout ça on va prendre un exemple et regarder comment faire un histogramme de Sturges sur RStudio. Les données suivantes sont des scores obtenus à l'inventaire de Beck, le but est de faire un diagramme de Sturges en suivant les étapes sur RStudio.
+\begin{center}
+\begin{tabular}{ c c c c c c c c }
+8.0 &8.3& 8.8 &11.3& 11.8 &12.4& 12.4&13.4  \\
+13.9& 14.0& 14.1& 15.8& 15.9& 16.0 &16.0 \\
+\end{tabular}
+\end{center}
+\newpage
+
+\begin{minted}{R}
+score <- c(13.9,8.3,15.8,14.1,15.9,8.0,12.4,11.3, 
+           12.4,8.8,16.0,11.8,14.0,16.0,13.4)
+
+# 1) Ordoner les données (pas utile sur R) et trouver n
+# La fonction lenght() donne la longeur d'un vecteur
+n <-length(score) # 15
+
+# 2) Déterminer l'étendue 
+e <- empan(score) # 8
+# Autre methode en utilisant max() et min() 
+# Donnent la vlauer maximale et minimale dans un vecteur
+e <- max(score)-min(score) # 8
+
+# 3) 1er estimation k et arrondir à la valeur sup pour K
+# La fonction ceiling() arrondi à la valeur supérieure 
+k <- ceiling((1+(log10(n)/log10(2)))) # 5
+
+# 4) Estimation largeur d'une classe l puis chiox de L
+l <- e/k # 1.6 donc L = 2 car 1 < 1.6 < 2
+
+# 5) Faire le graphique et l'afficher
+# right et inlcude.lowest sont définis comme suit pour Sturges
+# La valeur minimale des scores est 8 et est aussi multiple de 2
+H <- hist(score,
+          breaks = seq(8,16, by= 2),
+          right=FALSE,
+          include.lowest = TRUE,
+          probability = TRUE,
+          main = "Histogramme Beck")
+# Pour obtenir les informations comme fi, di, les brones, etc...
+H
+\end{minted}
+Les résultats sont résumés dans ce tableau :
+
+\quad
+\begin{center}
+\begin{tabular}{ c c c c c }
+\hline
+Classe & $n_i$&$f_i$&$a_i$&$d_j$ \\
+\hline
+$[8;10[$ & 3 & 0.200 & 2 & 0.100 \\
+$[10;12[$ & 2 & 0.133 & 2 & 0.067 \\
+$[12;14[$ & 4 & 0.267 & 2 & 0.133  \\
+$[14;16]$ & 6 & 0.400 & 2 & 0.2  \\
+\hline
+\end{tabular}
+\end{center}
+\quad
+
+Le diagramme en feuilles est une autre manière de représenter les données continues ou discrètes et permet de les ranger et d'observer leur dispersion mais perd certains avantages de l'histogramme. Sur la gauche du diagramme on trouve la tige, qui représente les premiers chiffres des nombres observés et à droite de chaque tige on trouve les feuilles qui représentent le dernier chiffre du nombre.
+
+Pour faire un diagramme en feuille avec R :
+\begin{minted}{R}
+# Pour faire un diagramme en feuille
+# x est un vecteur contenant les vleurs à observer
+stem(x)
+# Choix de la taille du diagramme celui-ci sera plus long
+stem(x,scale = 2)  
+\end{minted}
+
+\subsection{Variable qualitative}
+
+Pour représenter des variables qualitatives d'autres types de graphiques plus adaptés sont utilisées. Le premier est le diagramme en tuyaux d'orgue ou diagramme en barres.
+
+Supposons qu'on aie des données obtenues grâce à un questionnaire dont les résultats sont résumés dans le tableau suivant :
+
+\quad
+\begin{center}
+\begin{tabular}{l c c} 
+\hline
+  &$n_i$& $f_i [\%] $\\ \cline{2-3}
+(0) Jamais & 2 & 2.9  \\
+(1) Rarement & 5 & 7.1  \\
+(2) Occasionnellement & 33 & 47.1  \\
+(3) Presque tous les jours & 25 & 35.7  \\
+(4) Tous les jours & 4 & 7.1  \\
+\hline
+\end{tabular}
+\end{center}
+\quad
+
+La première chose à faire comme pour chaque exercice est d'introduire les données. On commence par créer un vecteur x qui va contenir nos données brutes, pour gagner du temps on peut coder nos modalités : "jamais" devient 0, "rarement" devient 1 etc... Ensuite on utilise la fonction \textbf{rep()} pour remplir le vecteur.
+
+Après on crée un tableau de données regroupées qu'on va appeler TAB par exemple.
+Finalement on utilise la fonction \textbf{barplot()} qui permet de créer un diagramme en barres, cette fonction prend plusieurs arguments, pour nos exercices généralement le premier argument est un tableau de données regroupées, ensuite comme pour les autres graphiques on peut changer le style avec d'autres arguments comme \textit{names.arg} qui permet de définir le titre en dessous de chaque barre, \textit{cex.names} qui définit la taille de ce texte ou encore \textit{col} qui change la couleur des barres. Sur R ça donne ça :
+
+\newpage
+
+\begin{minted}{R}
+x <- c(rep(0,2),rep(1,5),rep(2,33),rep(25,5),rep(4,5))
+
+TAB <-  table(x)
+
+barplot(TAB, 
+        ylab = "Effectif",
+        names.arg = c("Jamais", 
+                      "Rarement", 
+                      "Occasionnellement", 
+                      "Presque\ntous les jours", 
+                      "Tous les jours"), 
+        cex.names = 0.6, 
+        col = "hotpink")
+
+\end{minted}
+
+\textbf{Remarque} dans l'exemple au dessus j'ai écrit "Presque\textbackslash ntous les jours" le "\textbackslash n" est un symbole qui fait un retour à la ligne dans le graphique.
+
+L'autre graphique utilisé pour représenter des variables qualitatives est le diagramme en camembert. Il est intéressant de noter que l'angle de chaque tranche du camembert  $\theta_i$ permet de retrouver la fréquence de la modalité lié à la tranche en terme mathématique cela veut dire que  $\theta_i = 360\cdot f_i$. Pour faire un digramme en camembert on utilise la fonction \textbf{pie()} qui prend comme arguments principaux les données sous forme de tableaux de données regroupées ou un vecteur qui contient la proportion/fréquence de chaque tranche du camembert et \textit{labels} qui sert à définir le nom des tranches (les tranches sont nommées en suivant l'ordre d'apparition des modalités dans les données), d'autres arguments servent pour le style du diagramme comme par exemple \textit{radius} qui définit la taille du cercle ou encore \textit{main} qui définit le titre du graphique. 
+
+Supposons que nous avons fait un sondage dont la question était "êtes vous marié ?" les résultats sont résumés dans le tableau suivant :
+
+\quad
+\begin{center}
+\begin{tabular}{c c c c} 
+\hline
+  &Oui&Non&Total\\ \cline{2-4}
+$n_i$ & 14 & 56& 70  \\
+$f_i$ & 20\% & 80\%&100\%  \\
+$\theta_i$ & 72°&288°&360°  \\
+\hline
+\end{tabular}
+\end{center}
+\quad
+
+Maintenant il faut introduire nos données soit sous forme brute soit en utilisant directement les fréquences disponibles. Puis utiliser la fonction \textbf{pie()} pour créer notre diagramme en camembert sur R ça donne ça :
+
+\newpage
+
+\begin{minted}{R}
+# Pour faire un diagramme en camembert
+
+# En utilisant les données brutes
+x <- c(rep(0,14),rep(1,56))
+pie(table(x), 
+    labels = c("NON", "OUI"), 
+    radius = 1, 
+    main = "Etes-vous marié ?")
+    
+# En utilisant les fréquences 
+f <- c(20/100,80/100)
+pie(f, 
+    labels = c("NON", "OUI"), 
+    radius = 1, 
+    main = "Etes-vous marié ?")
+\end{minted}
+\section{Description numérique d’une variable statistique}
+Visuellement les graphiques permettent de se rendre compte de certaines propriétés de nos données, comme la forme de la distribution, leur position ou les modalités les plus représentées. Maintenant le but est de décrire ces différentes observations numériquement. Parmi les différentes caractéristiques qu'on va voir il y a les caractéristiques de postions, les caractéristiques de dispersion et les caractéristiques de forme.
+\subsection{Caractéristiques de position}
+
+Une bonne manière de résumer globalement nos données est de trouver une valeur représentative de l'ensemble. Pour ça on peut définir le centre de la distribution de plusieurs manières en fonction du type de nos variables et des informations qui nous intéressent. Le tableau ci-dessous en résume l'utilisation.
+
+\quad
+\begin{center}
+\begin{tabular}{l c c c} 
+\hline
+&\multicolumn{3}{c}{Caractéristique de tendance centrale} \\ \cline{2-4}
+Variable&Mode&Médiane&Moyenne\\
+\hline
+Nominale & $\Box$ &  &   \\
+Ordinale & $\Box$ & $\Box$&  \\
+Numérique & $\Box$ & $\Box$& $\Box$  \\
+\hline
+\end{tabular}
+\end{center}
+\quad
+
+\textbf{- Le Mode}
+
+"Le mode d'une variable statistique est la variable qui correspond au maximum du diagramme différentiel."
+
+Autrement dit le mode est la modalité qui revient le plus souvent, c'est à dire celle qui a la plus grande fréquence. Dans le cas d'un histogramme on ne parle pas de mode mais de classe modale, c'est la classe avec la plus grande densité. C'est aussi important de noter qu'une distribution peut avoir plusieurs modes comme aucun.
+
+Pour calculer le mode sur R il suffit d'utiliser la fonction \textbf{Mode()} proposée par Mr.Antonietti, avec pour argument les données brutes analysées. Pour utiliser des fonctions qui ne sont pas disponibles de base sur R et crées à la main il faut run le script de la fonction une fois pour qu'elle soit stockée dans la mémoire. Les fonctions visibles dans l'espace environnement sur RStudio peuvent ensuite être utilisées comme toute autre fonction.
+
+Supposons que nous ayons les scores d'un test et que nous cherchons le mode de la distribution. La première étape est de run une fois la fonction mode pour qu'elle puisse être utilisée. Ensuite on applique la fonction a nos données brutes, sur R ça donne ça :
+
+\begin{minted}{R}
+#Fonction du mode
+Mode <- function(x, na.rm = FALSE){
+  if(na.rm==TRUE){X <- x[!is.na(x)]} else{X <- x}
+  ifelse(sum(is.na(X)) > 0, 
+         M <- NA,
+         {ux <- unique(X);
+         tab <- tabulate(match(X, ux));
+         M <- ux[tab == max(tab)]}
+  )
+  return(M)
+}
+
+# Calcul du mode
+x <- c(1,2,3,4,3,5,4,3,5,6,3,7,8,6,5,3,7,4,5,6)
+Mode(x)
+\end{minted}
+
+\textbf{- La Médiane}
+
+"La médiane d'une variable statistique est la valeur qui partage les individus, supposées ordonnées, en deux groupes de même taille."
+
+Autrement dit si les données de notre échantillon étaient ordonnées sur une ligne  la médiane est la valeur qui se trouve au milieu de l'échantillon.
+
+Pour trouver la médiane il faut d'abord ordonner nos données de la plus petite à la plus grande, ensuite il faut regarder si le nombre d'observations est pair ou impair. 
+
+Si le nombre d'observation est impair la médiane est la valeur qui sépare l'échantillon en deux groupes de même taille :
+\begin{align*}
+  M=x_{[\frac{n+1}{2}]}  
+\end{align*}
+Si le nombre d'observation est pair la médiane est la moyenne des deux valeurs les plus centrales :
+\begin{align*}
+M=\frac{x_{[\frac{n}{2}]}+x_{[\frac{n}{2}+1]}}{2}
+\end{align*}
+
+Supposons que nous ayons les résultats d'un test de math de deux classes et que nous voulions calculez la médiane pour chaque classe. Les résultats sont résumés dans les tableaux suivants :
+
+Classe 1
+
+\begin{center}
+\begin{tabular}{l c c c c c c c c} 
+\hline
+$i$&1&2&3&4&5&6&7&8 \\ 
+\hline
+$x_i$&1&2&2&2&3&4&4&4 \\
+\hline
+\end{tabular}
+\end{center}
+\quad
+
+Le résultats sont déja ordonnées et nous avons un nombre pair d'observation $n= 8$ par conséquent :
+
+\begin{align*}
+M=\frac{x_{[\frac{n}{2}]}+x_{[\frac{n}{2}+1]}}{2} = \frac{x_{[\frac{8}{2}]}+x_{[\frac{8}{2}+1]}}{2} = \frac{x_4+x_5}{2} = \frac{2+3}{2}=2.5 
+\end{align*}
+
+Classe 2
+
+\begin{center}
+\begin{tabular}{l c c c c c c c} 
+\hline
+$i$&1&2&3&4&5&6&7 \\ 
+\hline
+$x_i$&1&3&3&4&4&5&5 \\
+\hline
+\end{tabular}
+\end{center}
+\quad
+
+Le résultats sont déjà ordonnées et nous avons un nombre impair d'observation $n= 7$ par conséquent :
+
+\begin{align*}
+  M=x_{[\frac{n+1}{2}]} = x_{[\frac{7+1}{2}] = x_4 = 4}  
+\end{align*}
+
+Sur R il suffit d'utiliser la fonction \textbf{median()} avec pour arguments nos données brutes pour calculer la médiane peu importe le nombre d'observation. Sur R ça donne ça :
+
+\begin{minted}{R}
+#Calcul de la médiane
+
+# Classe 1 
+x <- c(1,2,2,2,3,4,4,4)
+median(x)
+
+# Classe 2
+x <- c(1,3,3,4,4,5,5)
+median(x)
+\end{minted}
+
+\textbf{- La Moyenne}
+
+Intuitivement la moyenne est déjà comprise mais une façon de la représenter est de la considérer comme le point d'équilibre de masses distribués sur la droite numérique, c'est ce qui est fait dans le PowerPoint du cours. La moyenne est symbolisée par $\Bar{x}$ et se calcule de la manière suivante :
+
+\begin{align*}
+  \Bar{x}=\frac{1}{n} \cdot \sum_{i=1}^n x_i
+\end{align*}
+
+Dans le cas ou les données seraient sous formes de données regroupées il y a un autre moyen de calculer la moyenne qui s'appelle la moyenne pondérée. C'est comme si chaque modalité possédait un poids et ce poids correspond au nombre d'observation de la modalité. Au final le calcul est le même.
+
+\begin{align*}
+  \Bar{x}=\frac{1}{n} \cdot \sum_{i} x_i \cdot n_i
+\end{align*}
+
+La moyenne a plusieurs propriétés intéressantes la première est que la somme des écarts à la moyenne est égale a zéro.
+
+\begin{align*}
+  \sum_{i=1}^n (x_i-\Bar{x}) &= (x_1-\Bar{x})+...+(x_n-\Bar{x})=\sum_{i=1}^n x_i-n\Bar{x} \\
+ &= n\Biggl( \frac{1}{n} \cdot \sum_{i=1}^n x_i\Biggl) \; -  \; n\Bar{x} \\
+ &= \frac{1}{n} \cdot n \\
+ &= \;0
+\end{align*}
+
+La deuxième est que la moyenne est le point le plus proche de l'ensemble des observations.
+
+ÉCRIRE LA PREUVE
+
+
+\textbf{Remarque :} Si on devait comparer le mode, la médiane et la moyenne on observe que le mode et la médiane sont moins sensible aux données extrêmes.
+
+Supposons qu'en plus de la médiane des résultats au test de math nous voulions calculez la moyenne de chaque classe. Il suffit d'appliquer la formule :
+
+Classe 1
+
+\begin{center}
+\begin{tabular}{l c c c c c c c c} 
+\hline
+$i$&1&2&3&4&5&6&7&8 \\ 
+\hline
+$x_i$&1&2&2&2&3&4&4&4 \\
+\hline
+\end{tabular}
+\end{center}
+
+\begin{align*}
+  \Bar{x}=\frac{1}{n} \cdot \sum_{i=1}^n x_i = \frac{1}{8} \cdot (1+2+2+2+3+4+4+4) = \frac{22}{8} = 2.75
+\end{align*}
+
+Classe 2
+
+\begin{center}
+\begin{tabular}{l c c c c} 
+\hline
+$i$&1&2&3&4 \\ 
+\hline
+$x_i$&1&3&4&5 \\
+$n_i$&1&2&2&2 \\
+\hline
+\end{tabular}
+\end{center}
+\quad
+
+
+\begin{align*}
+  \Bar{x}=\frac{1}{n} \cdot \sum_{i} x_i \cdot n_i =\frac{1}{7} \cdot [(1\times1)+(2\times3)+(2\times4)+(2\times5)] =\frac{25}{7} = 3.751
+\end{align*}
+
+Sur R il suffit d'utiliser la fonction \textbf{mean()} qui prend comme argument les données brutes pour calculer la moyenne ou la fonction \textbf{weighted.mean()} qui prend comme arguments un vecteur contenant les modalités et un vecteur contenant le nombre d'occurrence de chaque modalité.
+
+\begin{minted}{R}
+# Moyenne 
+
+x <- c(4, 1, 3, 4, 2, 4, 2, 2)
+n <- length(x)
+x.bar <- sum(x)/n
+
+# En utilisant la fonction 
+mean(x)
+
+# Moyenne pondérée
+
+xj <- c(1, 3, 4, 5)
+nj <- c(1, 2, 2, 2)
+n <- sum(nj)
+x.bar <- sum(nj*xj)/n
+
+# En utilisant la fonciton
+weighted.mean(xj, nj)
+\end{minted}
+
+\subsection{Caractéristiques de dispersion}
+
+
+
+Ecart type
+
+Variance
+
+\subsection{Caractéristique de Forme}
+
+Skewness
+
+\section{Description bidimensionnelle et mesures de liaison entre variables}
+
+\chapter{Probabilité}
+
+\section{Théorie des probabilités}
+
+\section{Variables aléatoires discrètes et continues}
+
+\chapter{Statistique inférentielle}
+
+\section{Estimation}
+
+\section{Tests d’hypothèse}
+
+\section{Test d’ajustement du khi-carré}
+
+\section{Test d’indépendance du khi-carré}
+
+\section{Test sur une moyenne}
+
+\section{Test sur deux moyennes (mesures pairées)}
+
+\section{Test sur deux moyennes (échantillons indépendants)}
+
+\section{Analyse de variance}
+
+\section{Test de Wilcoxon}
+
+\section{Test de Mann-Whitney}
+
+\section{Test de Kruskal-Wallis}
+
+\chapter{Tips, tricks et autres dingueries}
+
+Contrairement aux autres chapitres celui la continent des techniques qui n'ont pas été vues en classes 
+\\
+
+Une autre manière si tu peux copier/coller les données est d'utiliser la fonction \textbf{scan()}. Cette fonction te permet d'écrire les données dans la console (partie en bas à gacuche dans RStudio) et de créer automatiquement un vecteur les contenant sans avoir à ajouter des virgules entre chaque valeur et les taper une à une. 
+
+Une fois que scan() est run une ligne vas apparaître dans la console ou tu peux introduire les valeurs, quand tu as terminé il faut faire "retour à la ligne" deux fois pour valider la fonction. Une fois terminé un texte en rouge apparaît annonçant le nombre d'éléments lus.
+
+Attention à contrôler si les valeurs ont été copiées correctement la distinction des valeurs par scan() se fait automatiquement si les valeurs sont sépares par des espaces ou des virgules mais parfois le copier/coller ne se fait pas correctement et colle certaines valeurs ensemble.
+
+\begin{minted}{R}
+
+# Calcule la moyenne du cours de stat 
+
+# Moyenne pour cours avec Antonietti Introduction à la statistioque 2022-2023
+
+moystat <- function(x){ 
+  
+  k <- length(x)
+  moyennes <- c()
+  type <- c(rep("A",k-1),"B")
+  val <- split(x=x,f=type)
+  y <- c(sort(val$A,decreasing = TRUE),val$B)
+  
+  cat("Pour les notes",y,"\n Les moyennes sont :\n")
+  
+  for(i in 1:k){ 
+    if(i==k) {break}
+    m <- round((y[k]*6 +sum(head(y,n=i)))/(6+length(head(y,n=i))),4)
+    cat(i,":",m,"\n")
+    moyennes <- c(moyennes,m)
+  }
+  
+  note <- ceiling(max(moyennes)*2)/2
+  
+  return(cat("La note finale est",note))
+  
+}
+
+#IMPORTANT
+
+#Donner un vecteur avec la note du dernier controle celui coef 6 à la fin 
+
+#Exemples voir dans moodle -> compléments -> consignes v01
+
+#exemple 1
+y <- c(6,4,4.5)
+
+moystat(y)
+
+#exemple 2
+y <- c(5.5,6,4.5,5)
+
+moystat(y)
+
+# Calcule le khi2, khi2max, V de cramer et df 
+
+# Cette fonction reçoit un tableau et rend les valeurs mentioneés avant
+
+Vcramer <- function(TAB) {
+  
+  res <- chisq.test(TAB, correct = FALSE)
+  n <- sum(TAB)
+  df <- min(dim(TAB)) -1
+  khi2 <- res$statistic
+  khi2max <- n*df
+  V <- sqrt(khi2/khi2max)
+  
+  return(cat("khi2 =",khi2,
+             "\nkhi2max =",khi2max, 
+             "\nV de cramer =",V, 
+             "\ndf =", df))
+}
+sturges <- function(x){ 
+  n <- length(x)
+  e <- max(x)-min(x)
+  K <- ceiling((1+(log10(n)/log10(2))))
+  l <- e/K
+  k<- sort(c(1:5,-1*(1:5)))
+  for(i in 1:10){
+    if(1*10^(k[i])< l & l <= 2*10^(k[i])){L <-2*10^(k[i])}
+    else if(2*10^(k[i])< l & l <= 5*10^(k[i])){L <-5*10^(k[i])}
+    else if(5*10^(k[i])< l & l <= 10*10^(k[i])){L <-10*10^(k[i])}
+    return(L)
+  }
+  
+  H <- hist(x,
+            breaks= seq(e0,en,by=L),
+            right=FALSE,
+            include.lowest=TRUE,
+            probability=TRUE,)
+  
+  return(H)
+}
+\end{minted}
+
+\end{document}
+
+
